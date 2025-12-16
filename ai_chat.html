@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>AI助学系统 - 课前课中课后全流程支持</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #1677ff;
+            --secondary-color: #52c41a;
+            --warning-color: #fa8c16;
+            --light-bg: #f0f2f5;
+            --card-bg: #ffffff;
+            --border-color: #e5e6eb;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 侧边导航 */
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo {
+            text-align: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+        
+        .logo h2 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-item.active {
+            background: #f0f7ff;
+            border-left: 4px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .section {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            background: white;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .section.active {
+            display: flex;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: #fafafa;
+        }
+        
+        .badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .section-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* 课前预习样式 */
+        .preview-levels {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .level-card {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .level-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .level-card.active {
+            border-color: var(--primary-color);
+            background: #f0f9ff;
+        }
+        
+        .level-card h4 {
+            margin-bottom: 5px;
+        }
+        
+        .level-card p {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* 新增：知识点输入区域 */
+        .topic-input-container {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: #f9f9f9;
+        }
+        
+        .topic-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .topic-input-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .topic-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .topic-input-field {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .topic-input-field:focus {
+            border-color: var(--primary-color);
+        }
+        
+        .topic-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .topic-suggestion {
+            background: #f0f7ff;
+            color: var(--primary-color);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .topic-suggestion:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .preview-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            line-height: 1.6;
+			max-height: 300px;
+        }
+        
+        .preview-content h4 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .preview-content ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .preview-content li {
+            margin-bottom: 5px;
+        }
+        
+        /* 课中学习样式 */
+        .code-editor-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .code-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .code-toolbar {
+            display: flex;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 10px;
+        }
+        
+        .code-editor {
+            flex: 1;
+            border: none;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+        }
+        
+        .code-output {
+            height: 150px;
+            border-top: 1px solid var(--border-color);
+            padding: 10px 15px;
+            background: #f7f8fa;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .chat-area {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--border-color);
+        }
+        
+        /* 课后复习样式 */
+        .progress-container {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--secondary-color);
+            width: 65%;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .suggestion-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .suggestion-tag {
+            background: #f0f7ff;
+            color: var(--primary-color);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            border: 1px solid #d0e3ff;
+        }
+        
+        .personalized-tasks {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+        
+        .task-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .task-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .task-difficulty {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .difficulty-easy {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        
+        .difficulty-medium {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+        
+        .difficulty-hard {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+        
+        .task-content {
+            flex: 1;
+        }
+        
+        .task-content h4 {
+            margin-bottom: 8px;
+        }
+        
+        .task-content p {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .task-actions {
+            margin-top: 15px;
+        }
+        
+        /* 聊天区域通用样式 */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f7f8fa;
+			max-height: 200px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+        }
+        
+        .user-message {
+            margin-left: auto;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 18px 18px 0 18px;
+        }
+        
+        .ai-message {
+            margin-right: auto;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: 18px 18px 18px 0;
+        }
+        
+        .message-author {
+            font-size: 12px;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            background: white;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+        }
+        
+        .send-button {
+            margin-left: 10px;
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .send-button:hover {
+            background-color: #0d66d0;
+        }
+        
+        .send-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .status-success {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        
+        .status-error {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .preview-levels {
+                flex-direction: column;
+            }
+            
+            .code-editor-container {
+                flex-direction: column;
+            }
+            
+            .chat-area {
+                width: 100%;
+                height: 300px;
+            }
+            
+            .topic-input {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边导航 -->
+    <div class="sidebar">
+        <div class="logo">
+            <h2>AI助学系统</h2>
+            <p>课前·课中·课后全流程支持</p>
+        </div>
+        
+        <div class="nav-item active" data-target="pre-class">
+            <i>📚</i> 课前预习
+        </div>
+        <div class="nav-item" data-target="in-class">
+            <i>💻</i> 课中学习
+        </div>
+        <div class="nav-item" data-target="after-class">
+            <i>📝</i> 课后复习
+        </div>
+        <div class="nav-item" data-target="progress">
+            <i>📊</i> 学习进度
+        </div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 课前预习区域 -->
+        <div class="section active" id="pre-class">
+            <div class="section-header">
+                <h2>课前预习 <span class="badge">个性化分层</span></h2>
+            </div>
+            
+            <div class="preview-levels">
+                <div class="level-card active" data-level="easy">
+                    <h4>基础版</h4>
+                    <p>适合需要巩固基础知识的同学</p>
+                </div>
+                <div class="level-card" data-level="medium">
+                    <h4>标准版</h4>
+                    <p>适合大多数同学的学习节奏</p>
+                </div>
+                <div class="level-card" data-level="hard">
+                    <h4>进阶版</h4>
+                    <p>适合学有余力的同学拓展学习</p>
+                </div>
+            </div>
+            
+            <!-- 新增：知识点输入区域 -->
+            <div class="topic-input-container">
+                <div class="topic-input-group">
+                    <div class="topic-input-label">请输入要预习的知识点：</div>
+                    <div class="topic-input">
+                        <input type="text" class="topic-input-field" id="preview-topic" placeholder="例如：Python循环结构、函数定义、列表操作等">
+                        <button class="btn btn-primary" id="set-topic">确定</button>
+                    </div>
+                    <div class="topic-suggestions">
+                        <div class="topic-suggestion" data-topic="Python循环结构">Python循环结构</div>
+                        <div class="topic-suggestion" data-topic="函数定义与调用">函数定义与调用</div>
+                        <div class="topic-suggestion" data-topic="列表与字典操作">列表与字典操作</div>
+                        <div class="topic-suggestion" data-topic="条件判断语句">条件判断语句</div>
+                        <div class="topic-suggestion" data-topic="文件读写操作">文件读写操作</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="preview-actions">
+                <button class="btn btn-primary" id="generate-preview">生成预习材料</button>
+                <button class="btn btn-secondary" id="generate-quiz">生成预习测验</button>
+            </div>
+            
+            <div class="section-content">
+                <div class="preview-content" id="preview-material">
+                    <p>请选择您的学习水平，输入要预习的知识点，然后点击"生成预习材料"按钮，AI将根据您的学习水平和知识点生成个性化预习内容。</p>
+                </div>
+                
+                <div class="chat-messages" id="preview-chat-messages">
+                    <div class="message ai-message">
+                        <div class="message-author">AI助手</div>
+                        你好！在预习中遇到任何问题都可以随时问我。
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" class="message-input" id="preview-message-input" placeholder="输入你的预习问题...">
+                    <button class="send-button" id="preview-send-button">发送</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 课中学习区域 -->
+        <div class="section" id="in-class">
+            <div class="section-header">
+                <h2>课中学习 <span class="badge">实时支持</span></h2>
+                <div>
+                    <button class="btn btn-warning" id="save-project">保存项目</button>
+                    <button class="btn btn-secondary" id="export-code">导出代码</button>
+                </div>
+            </div>
+            
+            <div class="section-content">
+                <div class="code-editor-container">
+                    <div class="code-area">
+                        <div class="code-toolbar">
+                            <button class="btn btn-secondary" id="debug-code">AI调试助手</button>
+                            <button class="btn btn-warning" id="explain-code">解释代码</button>
+                        </div>
+                        <textarea class="code-editor" id="code-editor" placeholder="在这里编写你的代码..."># 欢迎使用编程实践区
+# 你可以在这里编写代码，AI会帮助你调试和解决问题
+
+def calculate_average(numbers):
+    if len(numbers) == 0:
+        return 0
+    return sum(numbers) / len(numbers)
+
+# 测试代码
+scores = [85, 92, 78, 90, 88]
+average = calculate_average(scores)
+print(f"平均分: {average}")</textarea>
+                        <div class="code-output" id="code-output">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="chat-area">
+                        <div class="chat-messages" id="in-class-chat-messages">
+                            <div class="message ai-message">
+                                <div class="message-author">AI助手</div>
+                                我是你的编程伙伴，遇到任何技术问题都可以问我！
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" class="message-input" id="in-class-message-input" placeholder="输入编程问题或错误信息...">
+                            <button class="send-button" id="in-class-send-button">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 课后复习区域 -->
+        <div class="section" id="after-class">
+            <div class="section-header">
+                <h2>课后复习 <span class="badge">个性化巩固</span></h2>
+                <button class="btn btn-primary" id="refresh-progress">刷新学习分析</button>
+            </div>
+            
+            <div class="section-content">
+                <div class="progress-container" id="progress-container">
+                    <h4>本节课掌握情况</h4>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-bar-fill"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span id="progress-percent">0%</span>
+                        <span id="progress-text"></span>
+                    </div>
+                    <p id="suggestion-text">根据你的课堂表现，建议重点复习：<strong id="suggestion-topics"></strong></p>
+                    <div class="suggestion-tags" id="suggestion-tags">
+                        <!-- 标签将通过JS动态添加 -->
+                    </div>
+                </div>
+                
+                <div class="personalized-tasks">
+                    <div class="task-card">
+                        <span class="task-difficulty difficulty-easy">基础巩固</span>
+                        <div class="task-content">
+                            <h4>循环结构练习题</h4>
+                            <p>5道针对循环结构的专项练习题，帮助你巩固基础知识。</p>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-primary exercise-btn" data-difficulty="easy">开始练习</button>
+                        </div>
+                    </div>
+                    <div class="task-card">
+                        <span class="task-difficulty difficulty-medium">能力提升</span>
+                        <div class="task-content">
+                            <h4>函数定义小项目</h4>
+                            <p>创建一个简单的计算器程序，练习函数定义和调用。</p>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-secondary exercise-btn" data-difficulty="medium">开始项目</button>
+                        </div>
+                    </div>
+                    <div class="task-card">
+                        <span class="task-difficulty difficulty-hard">拓展挑战</span>
+                        <div class="task-content">
+                            <h4>综合应用挑战</h4>
+                            <p>设计一个学生成绩管理系统，综合应用本节课所学知识。</p>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn btn-warning exercise-btn" data-difficulty="hard">接受挑战</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="after-class-chat-messages">
+                    <div class="message ai-message">
+                        <div class="message-author">AI助手</div>
+                        在复习中遇到困难？我可以为你提供针对性的讲解和示例。
+                    </div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" class="message-input" id="after-class-message-input" placeholder="输入复习中遇到的问题...">
+                    <button class="send-button" id="after-class-send-button">发送</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 学习进度区域 -->
+        <div class="section" id="progress">
+            <div class="section-header">
+                <h2>学习进度分析</h2>
+            </div>
+            <div class="section-content" style="padding: 20px; text-align: center;">
+                <h3>学习数据分析功能开发中...</h3>
+                <p>这里将展示您的学习进度、知识点掌握情况和个性化学习建议。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 配置
+        const API_BASE_URL = 'http://localhost:8000';
+        
+        // 会话管理
+        let sessionId = 'student_' + Date.now();
+        let currentProjectId = null;
+        let currentTopic = 'Python循环结构'; // 默认知识点
+		let currentProgress = 0; // 默认进度
+        let currentSuggestions = []; // 默认建议复习点
+        
+        // 导航切换
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 移除所有active类
+                document.querySelectorAll('.nav-item').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // 添加active类到当前项
+                this.classList.add('active');
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+                
+                // 如果切换到课后复习区域，加载学习进度
+                if (targetId === 'after-class') {
+                    loadLearningProgress();
+                }
+            });
+        });
+        
+        // 预习难度选择
+        document.querySelectorAll('.level-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.level-card').forEach(c => {
+                    c.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // 设置知识点
+        document.getElementById('set-topic').addEventListener('click', function() {
+            const topicInput = document.getElementById('preview-topic');
+            const topic = topicInput.value.trim();
+            
+            if (topic) {
+                currentTopic = topic;
+                showStatus('preview-material', `已设置预习知识点为: ${topic}`, 'success');
+            } else {
+                showStatus('preview-material', '请输入有效的知识点', 'error');
+            }
+        });
+        
+        // 知识点建议点击
+        document.querySelectorAll('.topic-suggestion').forEach(suggestion => {
+            suggestion.addEventListener('click', function() {
+                const topic = this.getAttribute('data-topic');
+                document.getElementById('preview-topic').value = topic;
+                currentTopic = topic;
+                showStatus('preview-material', `已设置预习知识点为: ${topic}`, 'success');
+            });
+        });
+        
+        // 添加消息到聊天窗口的通用函数
+        function addMessage(chatContainerId, content, isUser = false) {
+            const chatMessages = document.getElementById(chatContainerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            
+            const authorDiv = document.createElement('div');
+            authorDiv.className = 'message-author';
+            authorDiv.textContent = isUser ? '你' : 'AI助手';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            
+            messageDiv.appendChild(authorDiv);
+            messageDiv.appendChild(contentDiv);
+            
+            chatMessages.appendChild(messageDiv);
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            return messageDiv;
+        }
+        
+        // 显示状态消息
+        function showStatus(elementId, message, type = 'success') {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                console.error(`Element with id '${elementId}' not found`);
+                return;
+            }
+            
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `status-message ${type === 'success' ? 'status-success' : 'status-error'}`;
+            statusDiv.textContent = message;
+            
+            // 移除之前的状态消息
+            const existingStatus = element.querySelector('.status-message');
+            if (existingStatus) {
+                existingStatus.remove();
+            }
+            
+            // 添加新的状态消息
+            element.insertBefore(statusDiv, element.firstChild);
+            
+            // 5秒后自动移除
+            setTimeout(() => {
+                if (statusDiv.parentNode) {
+                    statusDiv.parentNode.removeChild(statusDiv);
+                }
+            }, 5000);
+        }
+        
+        // 调用API的通用函数
+        async function callApi(endpoint, data = {}, method = 'POST') {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: method === 'POST' ? JSON.stringify(data) : undefined
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API调用错误:', error);
+                throw error;
+            }
+        }
+        
+        // 发送消息的通用函数
+        async function sendChatMessage(chatContainerId, inputId, buttonId, phase) {
+            const inputElement = document.getElementById(inputId);
+            const buttonElement = document.getElementById(buttonId);
+            const message = inputElement.value.trim();
+            
+            if (!message) return;
+            
+            // 添加用户消息
+            addMessage(chatContainerId, message, true);
+            inputElement.value = '';
+            buttonElement.disabled = true;
+            
+            // 添加加载状态
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.textContent = 'AI正在思考中...';
+            document.getElementById(chatContainerId).appendChild(loadingDiv);
+            
+            try {
+                const response = await callApi('/api/chat', {
+                    message: message,
+                    session_id: sessionId,
+                    phase: phase
+                });
+                
+                // 移除加载状态
+                document.getElementById(chatContainerId).removeChild(loadingDiv);
+                
+                if (response.success) {
+                    addMessage(chatContainerId, response.message);
+                } else {
+                    addMessage(chatContainerId, '抱歉，AI暂时无法响应，请稍后再试。');
+                    showStatus(chatContainerId, response.message, 'error');
+                }
+            } catch (error) {
+                document.getElementById(chatContainerId).removeChild(loadingDiv);
+                addMessage(chatContainerId, '网络错误，请检查连接后重试！');
+                showStatus(chatContainerId, '网络连接错误，请检查服务器是否运行在localhost:8000', 'error');
+            } finally {
+                buttonElement.disabled = false;
+            }
+        }
+        
+        // 绑定课前预习聊天事件
+        document.getElementById('preview-send-button').addEventListener('click', () => {
+            sendChatMessage('preview-chat-messages', 'preview-message-input', 'preview-send-button', 'pre-class');
+        });
+        
+        document.getElementById('preview-message-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage('preview-chat-messages', 'preview-message-input', 'preview-send-button', 'pre-class');
+            }
+        });
+        
+        // 绑定课中学习聊天事件
+        document.getElementById('in-class-send-button').addEventListener('click', () => {
+            sendChatMessage('in-class-chat-messages', 'in-class-message-input', 'in-class-send-button', 'in-class');
+        });
+        
+        document.getElementById('in-class-message-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage('in-class-chat-messages', 'in-class-message-input', 'in-class-send-button', 'in-class');
+            }
+        });
+        
+        // 绑定课后复习聊天事件
+        document.getElementById('after-class-send-button').addEventListener('click', () => {
+            sendChatMessage('after-class-chat-messages', 'after-class-message-input', 'after-class-send-button', 'after-class');
+        });
+        
+        document.getElementById('after-class-message-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage('after-class-chat-messages', 'after-class-message-input', 'after-class-send-button', 'after-class');
+            }
+        });
+        
+        // 加载学习进度分析
+        async function loadLearningProgress() {
+            try {
+                const response = await callApi('/api/analyze-progress', {
+                    session_id: sessionId
+                });
+                
+                if (response.success) {
+                    updateProgressUI(response);
+                } else {
+					// 处理数据不足的情况
+                    if (response.data_insufficient) {
+                        showStatus('progress-container', response.message || '对话数据不足，无法进行分析', 'error');
+                    } else {
+                        showStatus('progress-container', response.message || '使用默认学习分析数据', 'error');
+                    }
+                    // 使用默认值
+                    const defaultProgress = {
+                        progress: 0,
+                        suggestions: [],
+                        strengths: [],
+                        weaknesses: []
+                    };
+					updateProgressUI(defaultProgress);
+                }
+            } catch (error) {
+				console.log(error)
+                showStatus('progress-container', '网络连接错误，使用默认学习分析数据', 'error');
+                
+                // 使用默认值
+                const defaultProgress = {
+                    progress: 0,
+                    suggestions: [],
+                    strengths: [],
+                    weaknesses: []
+                };
+                updateProgressUI(defaultProgress);
+            }
+        }
+		
+		 // 保存课后复习的学习分析数据
+        let currentProgressData = null;
+		
+		// 更新学习进度UI
+        function updateProgressUI(progressData) {
+            // 保存学习分析数据
+            currentProgressData = progressData;
+            
+            // 更新进度条
+            const progressBar = document.getElementById('progress-bar-fill');
+            const progressPercent = document.getElementById('progress-percent');
+            const progressText = document.getElementById('progress-text');
+            const suggestionTopics = document.getElementById('suggestion-topics');
+            const suggestionTags = document.getElementById('suggestion-tags');
+            
+            if (!progressBar || !progressPercent || !progressText || !suggestionTopics || !suggestionTags) {
+                console.error('更新学习进度UI失败：必需的DOM元素不存在');
+                return;
+            }
+            
+            // 使用安全取值，处理空值情况
+            const progressValue = progressData.progress || 0; // 默认值为0
+            const suggestions = progressData.suggestions || []; // 默认值为空数组
+            const strengths = progressData.strengths || []; // 默认值为空数组
+            const weaknesses = progressData.weaknesses || []; // 默认值为空数组
+            
+            progressBar.style.width = `${progressValue}%`;
+            progressPercent.textContent = `${progressValue}%`;
+            
+            // 根据进度设置文本和颜色
+            if (progressValue >= 80) {
+                progressText.textContent = '优秀';
+                progressBar.style.background = '#52c41a';
+            } else if (progressValue >= 60) {
+                progressText.textContent = '良好';
+                progressBar.style.background = '#fa8c16';
+            } else {
+                progressText.textContent = '需加强';
+                progressBar.style.background = '#ff4d4f';
+            }
+            
+            // 更新建议复习内容
+            if (suggestions.length > 0) {
+                suggestionTopics.textContent = suggestions.join('、');
+                
+                // 清空现有标签
+                suggestionTags.innerHTML = '';
+                
+                // 添加新标签
+                suggestions.forEach(topic => {
+                    const tag = document.createElement('span');
+                    tag.className = 'suggestion-tag';
+                    tag.textContent = topic;
+                    suggestionTags.appendChild(tag);
+                });
+                
+                // 同时更新任务卡片中的内容
+                updateTaskCards(suggestions, strengths, weaknesses);
+            } else {
+                suggestionTopics.textContent = '暂无特定建议';
+                suggestionTags.innerHTML = '';
+            }
+            
+            // 如果有消息，显示消息
+            if (progressData.message) {
+                showStatus('progress-container', progressData.message, 'info');
+            }
+        }
+		
+		// 根据学习分析数据更新任务卡片
+        function updateTaskCards(suggestions, strengths, weaknesses) {
+            // 更新基础巩固任务卡片
+            const easyTask = document.querySelector('.task-card:nth-child(1) .task-content h4');
+            const easyDesc = document.querySelector('.task-card:nth-child(1) .task-content p');
+            
+            if (easyTask && easyDesc && suggestions.length > 0) {
+                easyTask.textContent = `${suggestions[0]}基础练习`;
+                easyDesc.textContent = `针对${suggestions[0]}的专项练习题，帮助你巩固基础知识。`;
+            }
+            
+            // 更新能力提升任务卡片
+            const mediumTask = document.querySelector('.task-card:nth-child(2) .task-content h4');
+            const mediumDesc = document.querySelector('.task-card:nth-child(2) .task-content p');
+            
+            if (mediumTask && mediumDesc && suggestions.length > 0) {
+                mediumTask.textContent = `${suggestions[0]}应用项目`;
+                mediumDesc.textContent = `创建一个${suggestions[0]}的实际应用，练习知识点的综合运用。`;
+            }
+            
+            // 更新拓展挑战任务卡片
+            const hardTask = document.querySelector('.task-card:nth-child(3) .task-content h4');
+            const hardDesc = document.querySelector('.task-card:nth-child(3) .task-content p');
+            
+            if (hardTask && hardDesc && suggestions.length > 0) {
+                hardTask.textContent = `综合应用挑战`;
+                hardDesc.textContent = `设计一个综合应用系统，结合${suggestions.join('、')}等知识点。`;
+            }
+        }
+        
+        // 刷新学习分析
+        document.getElementById('refresh-progress').addEventListener('click', function() {
+            const button = this;
+            button.disabled = true;
+            button.textContent = '分析中...';
+            
+            loadLearningProgress().finally(() => {
+                button.disabled = false;
+                button.textContent = '刷新学习分析';
+            });
+        });
+        
+        // 生成预习材料
+        document.getElementById('generate-preview').addEventListener('click', async function() {
+            const level = document.querySelector('.level-card.active').getAttribute('data-level');
+            const button = this;
+            button.disabled = true;
+            button.textContent = '生成中...';
+            
+            const targetElement = document.getElementById('preview-material');
+            targetElement.innerHTML = "<p>AI正在生成预习材料...</p>";
+            
+            try {
+                const response = await callApi('/api/preview', {
+                    level: level,
+                    topic: currentTopic
+                });
+                
+                if (response.success) {
+                    targetElement.innerHTML = `
+                        <h4>${currentTopic}预习材料（${level === 'easy' ? '基础版' : level === 'medium' ? '标准版' : '进阶版'}）</h4>
+                        <div style="white-space: pre-wrap; line-height: 1.6;">${response.material}</div>
+                    `;
+                    showStatus('preview-material', '预习材料生成成功！', 'success');
+                } else {
+                    targetElement.innerHTML = `<p>生成预习材料失败：${response.message}</p>`;
+                    showStatus('preview-material', response.message, 'error');
+                }
+            } catch (error) {
+                targetElement.innerHTML = '<p>生成预习材料时发生错误，请检查网络连接。</p>';
+                showStatus('preview-material', '网络连接错误，请检查服务器是否运行在localhost:8000', 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = '生成预习材料';
+            }
+        });
+        
+        // 生成预习测验
+        document.getElementById('generate-quiz').addEventListener('click', async function() {
+            const level = document.querySelector('.level-card.active').getAttribute('data-level');
+            const button = this;
+            button.disabled = true;
+            button.textContent = '生成中...';
+            
+            try {
+                const response = await callApi('/api/exercise', {
+                    topic: currentTopic,
+                    level: level
+                });
+                
+                if (response.success) {
+                    // 将测验内容发送到聊天窗口
+                    document.getElementById('preview-message-input').value = `请为我生成关于${currentTopic}的预习测验`;
+                    await sendChatMessage('preview-chat-messages', 'preview-message-input', 'preview-send-button', 'pre-class');
+                    
+                    // 添加测验内容
+                    setTimeout(() => {
+                        addMessage('preview-chat-messages', response.exercise);
+                    }, 1000);
+                    
+                    showStatus('preview-chat-messages', '预习测验生成成功！', 'success');
+                } else {
+                    showStatus('preview-chat-messages', response.message, 'error');
+                }
+            } catch (error) {
+                showStatus('preview-chat-messages', '网络连接错误，请检查服务器是否运行在localhost:8000', 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = '生成预习测验';
+            }
+        });
+        
+        // AI调试助手
+        document.getElementById('debug-code').addEventListener('click', async function() {
+            const code = document.getElementById('code-editor').value;
+            const button = this;
+            button.disabled = true;
+            button.textContent = '调试中...';
+            
+            try {
+                const response = await callApi('/api/debug', {
+                    code: code
+                });
+                
+                if (response.success) {
+                    // 将调试结果发送到聊天窗口
+                    document.getElementById('in-class-message-input').value = "请帮我调试这段代码";
+                    await sendChatMessage('in-class-chat-messages', 'in-class-message-input', 'in-class-send-button', 'in-class');
+                    
+                    // 添加调试结果
+                    setTimeout(() => {
+                        addMessage('in-class-chat-messages', response.result);
+                    }, 1000);
+                } else {
+                    showStatus('in-class-chat-messages', response.message, 'error');
+                }
+            } catch (error) {
+                showStatus('in-class-chat-messages', '网络连接错误，请检查服务器是否运行在localhost:8000', 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'AI调试助手';
+            }
+        });
+        
+        // 解释代码
+        document.getElementById('explain-code').addEventListener('click', async function() {
+            const code = document.getElementById('code-editor').value;
+            const button = this;
+            button.disabled = true;
+            button.textContent = '解释中...';
+            
+            try {
+                const response = await callApi('/api/explain', {
+                    code: code
+                });
+                
+                if (response.success) {
+                    // 将解释结果发送到聊天窗口
+                    document.getElementById('in-class-message-input').value = "请解释这段代码";
+                    await sendChatMessage('in-class-chat-messages', 'in-class-message-input', 'in-class-send-button', 'in-class');
+                    
+                    // 添加解释结果
+                    setTimeout(() => {
+                        addMessage('in-class-chat-messages', response.explanation);
+                    }, 1000);
+                } else {
+                    showStatus('in-class-chat-messages', response.message, 'error');
+                }
+            } catch (error) {
+                showStatus('in-class-chat-messages', '网络连接错误，请检查服务器是否运行在localhost:8000', 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = '解释代码';
+            }
+        });
+        
+        // 生成个性化作业
+        document.querySelectorAll('.exercise-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const difficulty = this.getAttribute('data-difficulty');
+                const button = this;
+                button.disabled = true;
+                button.textContent = '生成中...';
+                
+                try {
+                    // 使用学习分析数据中的建议复习点
+                    let topic = 'Python编程'; // 默认主题
+                    if (currentProgressData && currentProgressData.suggestions && currentProgressData.suggestions.length > 0) {
+                        topic = currentProgressData.suggestions[0]; // 使用第一个建议复习点
+                    }
+                    
+                    const response = await callApi('/api/generate-homework', {
+                        difficulty: difficulty,
+                        topic: topic,
+                        session_id: sessionId
+                    });
+                    
+                    if (response.success) {
+                        // 将作业内容发送到聊天窗口
+                        document.getElementById('after-class-message-input').value = `请为我生成${getDifficultyText(difficulty)}难度的${topic}作业`;
+                        await sendChatMessage('after-class-chat-messages', 'after-class-message-input', 'after-class-send-button', 'after-class');
+                        
+                        // 添加作业内容
+                        setTimeout(() => {
+                            addMessage('after-class-chat-messages', response.homework);
+                        }, 1000);
+                        
+                        showStatus('after-class-chat-messages', `${getDifficultyText(difficulty)}${topic}作业生成成功！`, 'success');
+                    } else {
+                        showStatus('after-class-chat-messages', response.message, 'error');
+                    }
+                } catch (error) {
+                    showStatus('after-class-chat-messages', '网络连接错误，请检查服务器是否运行在localhost:8000', 'error');
+                } finally {
+                    button.disabled = false;
+                    button.textContent = getButtonText(difficulty);
+                }
+            });
+        });
+		
+		function initTaskCards() {
+            const defaultSuggestions = [];
+            const defaultStrengths = [];
+            const defaultWeaknesses = [];
+            updateTaskCards(defaultSuggestions, defaultStrengths, defaultWeaknesses);
+        }
+        
+        // 获取难度文本
+        function getDifficultyText(difficulty) {
+            switch(difficulty) {
+                case 'easy': return '基础';
+                case 'medium': return '标准';
+                case 'hard': return '进阶';
+                default: return '基础';
+            }
+        }
+        
+        // 获取按钮文本
+        function getButtonText(difficulty) {
+            switch(difficulty) {
+                case 'easy': return '开始练习';
+                case 'medium': return '开始项目';
+                case 'hard': return '接受挑战';
+                default: return '开始练习';
+            }
+        }
+        
+        // 保存项目
+        document.getElementById('save-project').addEventListener('click', async function() {
+            const code = document.getElementById('code-editor').value;
+            const output = document.getElementById('code-output').textContent;
+            const button = this;
+            button.disabled = true;
+            button.textContent = '保存中...';
+            
+            try {
+                const response = await callApi('/api/save-project', {
+                    code: code,
+                    output: output,
+                    name: `代码项目_${new Date().toLocaleString()}`
+                });
+                
+                if (response.success) {
+                    currentProjectId = response.project_id;
+                    showStatus('code-output', '项目保存成功！', 'success');
+                } else {
+                    showStatus('code-output', response.message, 'error');
+                }
+            } catch (error) {
+                showStatus('code-output', '网络连接错误，请检查服务器是否运行在localhost:8000', 'error');
+            } finally {
+                button.disabled = false;
+                button.textContent = '保存项目';
+            }
+        });
+		 
+		 // 导出项目
+		document.getElementById('export-code').addEventListener('click', function() {
+            const code = document.getElementById('code-editor').value;
+            if (!code.trim()) {
+                showStatus('code-output', '代码为空，无法导出', 'error');
+                return;
+            }
+            
+            // 创建Blob对象
+            const blob = new Blob([code], { type: 'text/x-python' });
+            const url = URL.createObjectURL(blob);
+            
+            // 创建下载链接
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'my_code.py';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            // 释放URL对象
+            URL.revokeObjectURL(url);
+            
+            showStatus('code-output', '代码已导出为my_code.py', 'success');
+        });
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('AI助学系统已加载，会话ID:', sessionId);
+            console.log('当前预习知识点:', currentTopic);
+            console.log('确保后端服务器运行在 http://localhost:8000');
+            
+            // 初始化学习进度显示
+            const defaultProgress = {
+                progress: 0,
+                suggestions: [],
+                strengths: [],
+                weaknesses: []
+            };
+            updateProgressUI(defaultProgress);
+            
+            // 初始化任务卡片
+            initTaskCards();
+        });
+    </script>
+</body>
+</html>
