@@ -9,7 +9,7 @@ import random
 
 # 初始化OpenAI客户端
 client = OpenAI(
-    api_key="sk-fzL1g6l3ouBhGi0Lqq1HScXZFlSqJrq6TOpFjJBBVsqCOSYB",
+    api_key="你的api key",
     base_url="https://api.chatanywhere.tech/v1"
 )
 
@@ -676,3 +676,4 @@ def run_server():
 
 if __name__ == "__main__":
     run_server()
+
